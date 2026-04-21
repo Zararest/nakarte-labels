@@ -1,0 +1,5 @@
+gpxpy>=1.6
+Pillow>=10.0
+httpx>=0.25
+PyYAML>=6.0
+click>=8.0

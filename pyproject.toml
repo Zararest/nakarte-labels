@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nakarte-map-exporter"
+version = "1.0.0"
+description = "Export annotated PNG map images from nakarte.me GPX tracks"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+dependencies = [
+    "gpxpy>=1.6",
+    "Pillow>=10.0",
+    "httpx>=0.25",
+    "PyYAML>=6.0",
+    "click>=8.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/ivshumakov/nakarte-labels"
+"Bug Tracker" = "https://github.com/ivshumakov/nakarte-labels/issues"
+
+[project.scripts]
+nakarte-init   = "nakarte_init:main"
+nakarte-render = "nakarte_render:main"
+
+[tool.setuptools]
+py-modules = ["nakarte_init", "nakarte_render"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core", "core.*", "marks", "marks.*"]
