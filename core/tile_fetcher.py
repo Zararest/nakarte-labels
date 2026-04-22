@@ -97,6 +97,7 @@ async def _fetch_all_layers(layer_defs, zoom, tx_min, tx_max, ty_min, ty_max, on
     ) as client:
         base = None
         all_failed = True
+        total_failed = 0
 
         for title, url_tpl, is_tms in layer_defs:
             tiles, failed = await _fetch_layer(
@@ -104,6 +105,7 @@ async def _fetch_all_layers(layer_defs, zoom, tx_min, tx_max, ty_min, ty_max, on
                 zoom, tx_min, tx_max, ty_min, ty_max,
             )
             done += tiles_per_layer
+            total_failed += failed
             if on_progress:
                 on_progress(done, total)
 
@@ -120,9 +122,10 @@ async def _fetch_all_layers(layer_defs, zoom, tx_min, tx_max, ty_min, ty_max, on
                 client, semaphore, osm_title, osm_url, osm_tms,
                 zoom, tx_min, tx_max, ty_min, ty_max,
             )
+            total_failed += failed
             base = _stitch(tiles, tx_min, tx_max, ty_min, ty_max)
 
-    return base
+    return base, total_failed
 
 
 def fetch_and_stitch(zoom, tx_min, tx_max, ty_min, ty_max, layer_defs=None, on_progress=None):
@@ -131,6 +134,13 @@ def fetch_and_stitch(zoom, tx_min, tx_max, ty_min, ty_max, layer_defs=None, on_p
     if layer_defs is None:
         layer_defs = [REGISTRY['O']]
 
-    return asyncio.run(
+    image, total_failed = asyncio.run(
         _fetch_all_layers(layer_defs, zoom, tx_min, tx_max, ty_min, ty_max, on_progress)
     )
+    if total_failed:
+        click.echo(
+            f'\nWarning: {total_failed} tile(s) failed to load — '
+            'the image may have blank patches. Re-run to retry.',
+            err=True,
+        )
+    return image

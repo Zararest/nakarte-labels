@@ -7,7 +7,7 @@
 #
 # export.paper       — A4 | A3
 # export.orientation — portrait | landscape
-# export.dpi         — print resolution (300 for standard print quality)
+# export.dpi   — print resolution (300 for standard print quality)
 #
 # Set `type` for each mark you want rendered. Leave null to skip.
 # Mark types: label | numbered_point | direction_arrow
@@ -17,7 +17,7 @@ map:
 export:
   paper: A4
   orientation: portrait
-  scale: 200
+  scale: 260
   dpi: 300
 style:
   track_color: '#e60000'

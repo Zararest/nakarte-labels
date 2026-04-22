@@ -111,7 +111,8 @@ Wrote map.png  (2000 × 1200 px)
 
 | Field | Default | Description |
 |-------|---------|-------------|
-| `paper` | `A4` | Paper size: `A4`, `A4-landscape`, `A3`, `A3-landscape` |
+| `paper` | `A4` | Paper size: `A4` or `A3` |
+| `orientation` | `portrait` | Page orientation: `portrait` or `landscape` |
 | `scale` | `500` | **Map metres per image cm** — same unit as nakarte.me's export dialog.<br>Examples: `100` = 100 m/cm (1:10 000) · `500` = 500 m/cm (1:50 000) · `1000` = 1 km/cm (1:100 000) |
 | `dpi` | `300` | Output resolution in DPI (300 = standard print quality) |
 
@@ -120,8 +121,15 @@ Wrote map.png  (2000 × 1200 px)
 | Field | Required | Default | Description |
 |-------|----------|---------|-------------|
 | `url` | yes | — | Full nakarte.me URL (used for zoom, center, and track data) |
-| `width_px` | no | 2000 | Output image width |
-| `height_px` | no | 1200 | Output image height |
+| `center` | no | auto | Explicit map centre as `[lat, lng]`. If omitted, defaults to the track bounding box midpoint, or the coordinates from the URL if there is no track. |
+| `width_px` | no | 2000 | Output image width (ignored when `export` section is present) |
+| `height_px` | no | 1200 | Output image height (ignored when `export` section is present) |
+
+#### Map centre priority
+
+1. `map.center: [lat, lng]` — explicit override, always used when set.
+2. Track bounding box midpoint — used when the URL contains a track and no explicit centre.
+3. URL position — the `lat/lng` from the `#m=zoom/lat/lng` hash fragment.
 
 ### `style` section
 
