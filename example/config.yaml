@@ -4,12 +4,14 @@
 
 map:
   url: https://nakarte.me/\#m\=14/50.27749/87.51100\&l\=Czt\&nktl\=KXVqIcleF26fAUjs_5X3pQ
-  width_px: 10000
-  height_px: 5000
+export:
+  paper: A4
+  scale: 50000
+  dpi: 300
+
 style:
   track_color: '#e60000'
   track_width: 3
-
 marks:
 - lat: 50.32687
   lng: 87.46888

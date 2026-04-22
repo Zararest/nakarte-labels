@@ -13,15 +13,17 @@ PAPER_SIZES = {
 }
 
 
-def compute_zoom(scale, dpi, lat):
+def compute_zoom(scale_m_per_cm, dpi, lat):
     """Return the integer tile zoom level that best matches scale+DPI at a given latitude.
 
-    scale — denominator of the map scale (e.g. 50000 for 1:50 000)
-    dpi   — output resolution in dots per inch
-    lat   — centre latitude in decimal degrees
+    scale_m_per_cm — map metres represented by 1 cm on the image (e.g. 500 means 500 m/cm)
+    dpi            — output resolution in dots per inch
+    lat            — centre latitude in decimal degrees
     """
-    # 1 px on paper = (25.4 / dpi) mm paper = (25.4 / dpi) * (scale / 1000) m on ground
-    desired_m_per_px = scale * 25.4 / (dpi * 1000)
+    # 1 cm on paper = (dpi / 2.54) pixels
+    # 1 cm on paper = scale_m_per_cm metres on the ground
+    # → 1 pixel = scale_m_per_cm / (dpi / 2.54) = scale_m_per_cm * 2.54 / dpi metres
+    desired_m_per_px = scale_m_per_cm * 2.54 / dpi
 
     # Web Mercator: m_per_px = 2π·R·cos(lat) / (256·2^z)
     z = math.log2(
@@ -48,7 +50,7 @@ def resolve_export(cfg_map, cfg_export, center_lat):
     """
     if cfg_export:
         paper = cfg_export.get('paper', 'A4')
-        scale = cfg_export.get('scale', 50000)
+        scale = cfg_export.get('scale', 500)
         dpi = cfg_export.get('dpi', 300)
         width_px, height_px = paper_pixels(paper, dpi)
         zoom = compute_zoom(scale, dpi, center_lat)

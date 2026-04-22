@@ -40,7 +40,8 @@ This installs two commands: `nakarte-init` and `nakarte-render`.
 ### Step 2 — generate a YAML scaffold
 
 ```bash
-nakarte-init --url 'https://nakarte.me/#m=14/50.27749/87.51100&l=Czt&nktl=KXVqIcleF26fAUjs_5X3pQ' --out config.yaml
+nakarte-init --url 'https://nakarte.me/#m=14/50.27749/87.51100&l=Czt&nktl=KXVqIcleF26fAUjs_5X3pQ' \
+             --scale 500 --dpi 300 --paper A4 --out config.yaml
 ```
 
 Output:
@@ -105,6 +106,14 @@ Wrote map.png  (2000 × 1200 px)
 ---
 
 ## Config reference
+
+### `export` section
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `paper` | `A4` | Paper size: `A4`, `A4-landscape`, `A3`, `A3-landscape` |
+| `scale` | `500` | **Map metres per image cm** — same unit as nakarte.me's export dialog.<br>Examples: `100` = 100 m/cm (1:10 000) · `500` = 500 m/cm (1:50 000) · `1000` = 1 km/cm (1:100 000) |
+| `dpi` | `300` | Output resolution in DPI (300 = standard print quality) |
 
 ### `map` section
 
