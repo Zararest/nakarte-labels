@@ -7,8 +7,10 @@ from PIL import Image
 from core.tile_math import TILE_SIZE
 
 TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-USER_AGENT = 'nakarte-map-exporter/1.0 (https://github.com/ivshumakov/nakarte-labels)'
+USER_AGENT = 'nakarte-map-exporter/1.0 (https://github.com/Zararest/nakarte-labels)'
 MAX_CONCURRENT = 4
+_RETRY_STATUSES = {429, 500, 502, 503, 504}
+_MAX_RETRIES = 5
 
 
 async def _fetch_all(zoom, tx_min, tx_max, ty_min, ty_max, on_progress=None):
@@ -17,9 +19,19 @@ async def _fetch_all(zoom, tx_min, tx_max, ty_min, ty_max, on_progress=None):
 
     async def fetch_one(client, tx, ty):
         url = TILE_URL.format(z=zoom, x=tx, y=ty)
-        async with semaphore:
-            r = await client.get(url)
-            r.raise_for_status()
+        delay = 1.0
+        for attempt in range(_MAX_RETRIES):
+            async with semaphore:
+                r = await client.get(url)
+            if r.status_code not in _RETRY_STATUSES:
+                r.raise_for_status()
+                break
+            if attempt < _MAX_RETRIES - 1:
+                await asyncio.sleep(delay)
+                delay *= 2
+            else:
+                r.raise_for_status()
+
         img = Image.open(io.BytesIO(r.content)).convert('RGBA')
         results[(tx, ty)] = img
         if on_progress:

@@ -40,7 +40,7 @@ This installs two commands: `nakarte-init` and `nakarte-render`.
 ### Step 2 — generate a YAML scaffold
 
 ```bash
-nakarte-init --url "https://nakarte.me/#m=14/50.27749/87.51100&l=Czt&nktl=KXVqIcleF26fAUjs_5X3pQ" --out config.yaml
+nakarte-init --url 'https://nakarte.me/#m=14/50.27749/87.51100&l=Czt&nktl=KXVqIcleF26fAUjs_5X3pQ' --out config.yaml
 ```
 
 Output:

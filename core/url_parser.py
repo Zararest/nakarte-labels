@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 
 def parse_nakarte_url(url):
     """Parse a nakarte.me URL, return dict with zoom, lat, lng, layers, nktk, nktl."""
-    parsed = urlparse(url)
+    parsed = urlparse(url.replace('\\', ''))
     fragment = parsed.fragment
 
     params = {}
