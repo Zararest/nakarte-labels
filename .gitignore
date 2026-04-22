@@ -18,6 +18,7 @@ env/
 *.png
 *.yaml
 !example/*.yaml
+!example/*.png
 
 # Editor / OS
 .DS_Store
