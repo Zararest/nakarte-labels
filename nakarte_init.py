@@ -1,44 +1,73 @@
-"""nakarte-init — parse a nakarte GPX export and write a YAML config scaffold."""
+"""nakarte-init — parse a nakarte URL and write a YAML config scaffold."""
 
-import os
 import sys
 
 import click
 import yaml
 
-from core.gpx_parser import parse_gpx
-from core.url_parser import parse_nakarte_url
+from core.url_parser import extract_tracks, parse_nakarte_url
 
 
 @click.command()
-@click.argument('gpx_file', type=click.Path(exists=True))
 @click.option('--url', required=True, help='Full nakarte.me URL (copied from the browser).')
 @click.option('--out', default='config.yaml', show_default=True, help='Output YAML path.')
 @click.option('--width', default=2000, show_default=True, help='Output image width in pixels.')
 @click.option('--height', default=1200, show_default=True, help='Output image height in pixels.')
-def main(gpx_file, url, out, width, height):
-    """Parse a nakarte GPX export and generate a raw YAML config scaffold."""
+def main(url, out, width, height):
+    """Parse a nakarte URL and generate a raw YAML config scaffold."""
     try:
-        parse_nakarte_url(url)
+        url_params = parse_nakarte_url(url)
     except ValueError as e:
         click.echo(f'Error: {e}', err=True)
         sys.exit(1)
 
-    try:
-        gpx_data = parse_gpx(gpx_file)
-    except Exception as e:
-        click.echo(f'Error reading GPX: {e}', err=True)
+    if not url_params.get('nktk') and not url_params.get('nktl'):
+        click.echo(
+            'Error: URL contains no track data (no nktk= or nktl= parameter).\n'
+            'Draw a route in nakarte.me and copy the URL from the address bar.',
+            err=True,
+        )
         sys.exit(1)
 
-    marks = [
-        {'lat': round(wp.lat, 6), 'lng': round(wp.lng, 6), 'name': wp.name, 'type': None}
-        for wp in gpx_data.waypoints
-    ]
+    click.echo('Reading track from URL...')
+    try:
+        tracks = extract_tracks(url_params)
+    except PermissionError as e:
+        click.echo(f'Error: {e}', err=True)
+        sys.exit(1)
+    except RuntimeError as e:
+        click.echo(f'Error: {e}', err=True)
+        sys.exit(1)
+
+    if not tracks:
+        click.echo('Error: no tracks found in URL.', err=True)
+        sys.exit(1)
+
+    if len(tracks) > 1:
+        click.echo(
+            f'Warning: {len(tracks)} tracks found in URL — '
+            'only single-track URLs are fully supported. '
+            'Using the first track; others will be ignored for marks.',
+            err=True,
+        )
+
+    total_segs = sum(len(t.segments) for t in tracks)
+    total_pts = sum(len(p) for t in tracks for p in t.segments)
+
+    # Collect waypoints from all tracks as mark scaffold entries
+    marks = []
+    for track in tracks:
+        for lat, lng, name in track.waypoints:
+            marks.append({
+                'lat': round(lat, 6),
+                'lng': round(lng, 6),
+                'name': name,
+                'type': None,
+            })
 
     config = {
         'map': {
             'url': url,
-            'gpx': os.path.abspath(gpx_file),
             'width_px': width,
             'height_px': height,
         },
@@ -59,11 +88,8 @@ def main(gpx_file, url, out, width, height):
         f.write(header)
         yaml.dump(config, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
 
-    n_segs = len(gpx_data.tracks)
-    n_pts = sum(len(s.points) for s in gpx_data.tracks)
-    click.echo(f'Parsed {gpx_file}:')
-    click.echo(f'  {len(gpx_data.waypoints)} waypoint(s) → marks (type: null)')
-    click.echo(f'  {n_segs} track segment(s) with {n_pts} points')
+    click.echo(f'Track:   {len(tracks)} track(s), {total_segs} segment(s), {total_pts} points')
+    click.echo(f'Marks:   {len(marks)} waypoint(s) → config marks (type: null)')
     click.echo(f'Wrote {out}')
 
 

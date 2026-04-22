@@ -5,12 +5,22 @@ import sys
 import click
 import yaml
 
-from core.gpx_parser import parse_gpx
 from core.mark_renderer import render_marks
 from core.tile_fetcher import fetch_and_stitch
 from core.tile_math import TILE_SIZE, lat_lng_to_pixel
 from core.track_renderer import draw_track
-from core.url_parser import parse_nakarte_url
+from core.url_parser import extract_tracks, parse_nakarte_url
+from core.nktk_parser import TrackData
+
+
+def _segments_to_track_segments(tracks):
+    """Convert list[TrackData] to a flat list of segment objects for draw_track."""
+
+    class _Seg:
+        def __init__(self, points):
+            self.points = points
+
+    return [_Seg(seg) for track in tracks for seg in track.segments]
 
 
 @click.command()
@@ -36,15 +46,15 @@ def main(config, out):
     track_width = style.get('track_width', 3)
 
     try:
-        params = parse_nakarte_url(url)
+        url_params = parse_nakarte_url(url)
     except ValueError as e:
         click.echo(f'Error parsing URL: {e}', err=True)
         sys.exit(1)
 
-    zoom = params['zoom']
-    cx, cy = lat_lng_to_pixel(params['lat'], params['lng'], zoom)
+    zoom = url_params['zoom']
+    cx, cy = lat_lng_to_pixel(url_params['lat'], url_params['lng'], zoom)
 
-    # Canvas bounds in global pixel space
+    # Canvas bounds in global tile-pixel space
     origin_x = cx - width_px / 2
     origin_y = cy - height_px / 2
 
@@ -73,15 +83,21 @@ def main(config, out):
     def project(lat, lng):
         return lat_lng_to_pixel(lat, lng, zoom)
 
-    gpx_file = map_cfg.get('gpx')
-    if gpx_file:
+    # Decode track from URL and draw it
+    has_track = url_params.get('nktk') or url_params.get('nktl')
+    if has_track:
+        click.echo('Reading track from URL...')
         try:
-            gpx_data = parse_gpx(gpx_file)
-            click.echo('Drawing track...')
-            draw_track(canvas, gpx_data.tracks, origin_x, origin_y, project,
+            tracks = extract_tracks(url_params)
+        except (PermissionError, RuntimeError) as e:
+            click.echo(f'Warning: could not load track: {e}', err=True)
+            tracks = []
+
+        if tracks:
+            segs = _segments_to_track_segments(tracks)
+            click.echo(f'Drawing track ({len(segs)} segment(s))...')
+            draw_track(canvas, segs, origin_x, origin_y, project,
                        color=track_color, width=track_width)
-        except Exception as e:
-            click.echo(f'Warning: could not draw track: {e}', err=True)
 
     active = [m for m in marks_cfg if m.get('type')]
     click.echo(f'Rendering {len(active)} mark(s)...')

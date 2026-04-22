@@ -1,8 +1,9 @@
 # nakarte-map-exporter
 
-Export annotated PNG map images from [nakarte.me](https://nakarte.me) GPX tracks.
+Export annotated PNG map images from [nakarte.me](https://nakarte.me) track URLs.
 
-Draw your route in nakarte, export a GPX file, describe your annotations in a YAML config, and get a high-resolution map image ready to print or share.
+Draw your route in nakarte, copy the URL, describe your annotations in a YAML config,
+and get a high-resolution map image ready to print or share — no GPX export needed.
 
 **Supported annotation types:** text labels, numbered waypoints, direction arrows.
 
@@ -13,13 +14,13 @@ Draw your route in nakarte, export a GPX file, describe your annotations in a YA
 Requires **Python 3.9+**.
 
 ```bash
-pip install git+https://github.com/ivshumakov/nakarte-labels.git
+pip install git+https://github.com/Zararest/nakarte-labels.git
 ```
 
 Or clone and install in editable mode for development:
 
 ```bash
-git clone https://github.com/ivshumakov/nakarte-labels.git
+git clone https://github.com/Zararest/nakarte-labels.git
 cd nakarte-labels
 pip install -e .
 ```
@@ -34,20 +35,19 @@ This installs two commands: `nakarte-init` and `nakarte-render`.
 
 1. Draw or import your route.
 2. Name waypoints directly in nakarte (`бивуак 4`, `обед`, etc.).
-3. **File → Export → GPX** — save as `track.gpx`.
-4. Copy the page URL from the address bar.
+3. Copy the page URL from the address bar — the track is encoded in it.
 
 ### Step 2 — generate a YAML scaffold
 
 ```bash
-nakarte-init track.gpx --url "https://nakarte.me/#m=12/67.84/33.51&l=T" --out config.yaml
+nakarte-init --url "https://nakarte.me/#m=14/50.27749/87.51100&l=Czt&nktl=KXVqIcleF26fAUjs_5X3pQ" --out config.yaml
 ```
 
 Output:
 ```
-Parsed track.gpx:
-  3 waypoint(s) → marks (type: null)
-  1 track segment(s) with 247 points
+Reading track from URL...
+Track:   1 track(s), 1 segment(s), 247 points
+Marks:   3 waypoint(s) → config marks (type: null)
 Wrote config.yaml
 ```
 
@@ -57,8 +57,7 @@ Open `config.yaml` and set `type` for each mark you want rendered:
 
 ```yaml
 map:
-  url: "https://nakarte.me/#m=12/67.842/33.512&l=T"
-  gpx: "/path/to/track.gpx"
+  url: "https://nakarte.me/#m=14/50.27749/87.51100&l=Czt&nktl=KXVqIcleF26fAUjs_5X3pQ"
   width_px: 2000
   height_px: 1200
 
@@ -96,8 +95,9 @@ nakarte-render config.yaml --out map.png
 
 Output:
 ```
-Fetching tiles (zoom 12)... 24/24
-Drawing track...
+Fetching tiles (zoom 14)... 24/24
+Reading track from URL...
+Drawing track (1 segment(s))...
 Rendering 3 mark(s)...
 Wrote map.png  (2000 × 1200 px)
 ```
@@ -110,8 +110,7 @@ Wrote map.png  (2000 × 1200 px)
 
 | Field | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `url` | yes | — | Full nakarte.me URL (used for zoom and center) |
-| `gpx` | no | — | Path to the GPX file (needed to draw the track line) |
+| `url` | yes | — | Full nakarte.me URL (used for zoom, center, and track data) |
 | `width_px` | no | 2000 | Output image width |
 | `height_px` | no | 1200 | Output image height |
 
@@ -127,7 +126,7 @@ Wrote map.png  (2000 × 1200 px)
 | Field | Applies to | Description |
 |-------|-----------|-------------|
 | `lat`, `lng` | all | Coordinate (decimal degrees, WGS84) |
-| `name` | all | Label text; preserved from GPX |
+| `name` | all | Label text; preserved from nakarte waypoints |
 | `type` | all | `label`, `numbered_point`, `direction_arrow`, or `null` (skip) |
 | `color` | label, direction_arrow | CSS hex color |
 | `offset` | label | `[dx, dy]` pixel nudge from the anchor point |
@@ -136,12 +135,28 @@ Wrote map.png  (2000 × 1200 px)
 
 ---
 
+## URL format notes
+
+nakarte.me stores track data directly in the URL hash. Two formats are supported:
+
+- **`nktk=`** — track encoded inline in the URL (no server required)
+- **`nktl=`** — track stored on nakarte's server, fetched automatically on init/render
+
+If you use `nktl=` and get an authentication error, open nakarte.me in your browser
+while logged in, or re-save the track to get an inline `nktk=` URL.
+
+Currently only **single-track URLs** are fully supported. If the URL contains multiple
+tracks, the first one is used for rendering and a warning is shown.
+
+---
+
 ## Tile attribution
 
 Map tiles are fetched from [OpenStreetMap](https://www.openstreetmap.org/).
 © OpenStreetMap contributors, [ODbL](https://www.openstreetmap.org/copyright).
 
-Please follow the [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) — do not run batch exports at high frequency.
+Please follow the [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) —
+do not run batch exports at high frequency.
 
 ---
 
