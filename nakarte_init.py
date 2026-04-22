@@ -11,9 +11,11 @@ from core.url_parser import extract_tracks, parse_nakarte_url
 @click.command()
 @click.option('--url', required=True, help='Full nakarte.me URL (copied from the browser).')
 @click.option('--out', default='config.yaml', show_default=True, help='Output YAML path.')
-@click.option('--width', default=2000, show_default=True, help='Output image width in pixels.')
-@click.option('--height', default=1200, show_default=True, help='Output image height in pixels.')
-def main(url, out, width, height):
+@click.option('--scale', default=50000, show_default=True, help='Map scale denominator (e.g. 50000 for 1:50 000).')
+@click.option('--dpi', default=300, show_default=True, help='Output resolution in DPI.')
+@click.option('--paper', default='A4', show_default=True,
+              help='Paper size: A4, A4-landscape, A3, A3-landscape.')
+def main(url, out, scale, dpi, paper):
     """Parse a nakarte URL and generate a raw YAML config scaffold."""
     try:
         url_params = parse_nakarte_url(url)
@@ -68,8 +70,13 @@ def main(url, out, width, height):
     config = {
         'map': {
             'url': url,
-            'width_px': width,
-            'height_px': height,
+            # Optional explicit centre override: uncomment and set coordinates.
+            # center: [lat, lng]
+        },
+        'export': {
+            'paper': paper,
+            'scale': scale,
+            'dpi': dpi,
         },
         'style': {
             'track_color': '#e60000',

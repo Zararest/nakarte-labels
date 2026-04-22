@@ -23,7 +23,7 @@ def parse_nakarte_url(url):
         'zoom': int(m_parts[0]),
         'lat': float(m_parts[1]),
         'lng': float(m_parts[2]),
-        'layers': params.get('l', 'O').split(','),
+        'layer_codes': list(params.get('l', 'O')),  # each char = one layer
         'nktk': params.get('nktk'),  # inline base64 track data
         'nktl': params.get('nktl'),  # server-stored track id
     }
