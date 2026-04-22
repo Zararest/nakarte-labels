@@ -13,9 +13,10 @@ from core.url_parser import extract_tracks, parse_nakarte_url
 @click.option('--out', default='config.yaml', show_default=True, help='Output YAML path.')
 @click.option('--scale', default=500, show_default=True, help='Scale as map metres per image cm (e.g. 500 means 500 m/cm = 1:50 000).')
 @click.option('--dpi', default=300, show_default=True, help='Output resolution in DPI.')
-@click.option('--paper', default='A4', show_default=True,
-              help='Paper size: A4, A4-landscape, A3, A3-landscape.')
-def main(url, out, scale, dpi, paper):
+@click.option('--paper', default='A4', show_default=True, help='Paper size: A4 or A3.')
+@click.option('--orientation', default='portrait', show_default=True,
+              help='Page orientation: portrait or landscape.')
+def main(url, out, scale, dpi, paper, orientation):
     """Parse a nakarte URL and generate a raw YAML config scaffold."""
     try:
         url_params = parse_nakarte_url(url)
@@ -75,6 +76,7 @@ def main(url, out, scale, dpi, paper):
         },
         'export': {
             'paper': paper,
+            'orientation': orientation,
             'scale': scale,
             'dpi': dpi,
         },
@@ -93,7 +95,8 @@ def main(url, out, scale, dpi, paper):
         '#   250  = 250 m/cm = 1:25 000\n'
         '#  1000  = 1 km/cm = 1:100 000\n'
         '#\n'
-        '# export.paper — A4 | A4-landscape | A3 | A3-landscape\n'
+        '# export.paper       — A4 | A3\n'
+        '# export.orientation — portrait | landscape\n'
         '# export.dpi   — print resolution (300 for standard print quality)\n'
         '#\n'
         '# Set `type` for each mark you want rendered. Leave null to skip.\n'

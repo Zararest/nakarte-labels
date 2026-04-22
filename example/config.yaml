@@ -5,8 +5,9 @@
 #   250  = 250 m/cm = 1:25 000
 #  1000  = 1 km/cm = 1:100 000
 #
-# export.paper — A4 | A4-landscape | A3 | A3-landscape
-# export.dpi   — print resolution (300 for standard print quality)
+# export.paper       — A4 | A3
+# export.orientation — portrait | landscape
+# export.dpi         — print resolution (300 for standard print quality)
 #
 # Set `type` for each mark you want rendered. Leave null to skip.
 # Mark types: label | numbered_point | direction_arrow
@@ -15,7 +16,8 @@ map:
   url: https://nakarte.me/\#m\=11/50.31988/87.62646\&l\=Czt\&nktl\=KXVqIcleF26fAUjs_5X3pQ
 export:
   paper: A4
-  scale: 500
+  orientation: portrait
+  scale: 200
   dpi: 300
 style:
   track_color: '#e60000'
