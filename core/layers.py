@@ -17,7 +17,6 @@ import click
 # Definitively known public tile servers, no API key required.
 REGISTRY = {
     'O': 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    'C': 'https://tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
 }
 
 # nakarte hosts its own raster tiles (Russian topo, etc.) at this base URL.

@@ -4,6 +4,7 @@ import sys
 
 import click
 import yaml
+from PIL import Image
 
 from core.export_params import resolve_export
 from core.layers import resolve_layers
@@ -131,7 +132,11 @@ def main(config, out):
         click.echo(f'Error: {e}', err=True)
         sys.exit(1)
 
-    canvas.convert('RGB').save(out, 'PNG', optimize=True)
+    # Flatten onto white before saving: transparent pixels (failed tiles, empty areas)
+    # become white instead of black when converting RGBA → RGB.
+    background = Image.new('RGBA', canvas.size, (255, 255, 255, 255))
+    background.alpha_composite(canvas)
+    background.convert('RGB').save(out, 'PNG', optimize=True)
     click.echo(f'Wrote {out}  ({width_px} \u00d7 {height_px} px)')
 
 
