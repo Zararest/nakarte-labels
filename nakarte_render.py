@@ -83,9 +83,9 @@ def main(config, out):
 
     # --- Resolve layers ---
     layer_codes = url_params.get('layer_codes', ['O'])
-    tile_urls = resolve_layers(layer_codes)
-    layer_str = ''.join(layer_codes)
-    click.echo(f'Layers: {layer_str!r}  →  {len(tile_urls)} tile source(s)')
+    layer_defs = resolve_layers(layer_codes)  # list of (title, url_tpl, is_tms)
+    titles = ', '.join(t for t, _, _ in layer_defs)
+    click.echo(f'Layers: {"".join(layer_codes)!r}  →  {titles}')
 
     # --- Tile bounds ---
     cx, cy = lat_lng_to_pixel(center_lat, center_lng, zoom)
@@ -105,7 +105,7 @@ def main(config, out):
     click.echo(f'Fetching tiles (zoom {zoom}, {total_tiles} tile request(s))... 0/{total_tiles}',
                nl=False)
     stitched = fetch_and_stitch(zoom, tx_min, tx_max, ty_min, ty_max,
-                                tile_url_tpls=tile_urls, on_progress=on_progress)
+                                layer_defs=layer_defs, on_progress=on_progress)
     click.echo()
 
     # Crop to exact canvas size
