@@ -1,5 +1,7 @@
 from urllib.parse import urlparse
 
+from core.layers import parse_layer_codes
+
 
 def parse_nakarte_url(url):
     """Parse a nakarte.me URL, return dict with zoom, lat, lng, layers, nktk, nktl."""
@@ -23,7 +25,7 @@ def parse_nakarte_url(url):
         'zoom': int(m_parts[0]),
         'lat': float(m_parts[1]),
         'lng': float(m_parts[2]),
-        'layer_codes': list(params.get('l', 'O')),  # each char = one layer
+        'layer_codes': parse_layer_codes(params.get('l', 'O')),
         'nktk': params.get('nktk'),  # inline base64 track data
         'nktl': params.get('nktl'),  # server-stored track id
     }

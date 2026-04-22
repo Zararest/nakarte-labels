@@ -9,8 +9,8 @@ from core.tile_math import TILE_SIZE
 
 USER_AGENT = 'nakarte-map-exporter/1.0 (https://github.com/Zararest/nakarte-labels)'
 MAX_CONCURRENT = 4
-_RETRY_STATUSES = {429, 500, 502, 503, 504}
-_MAX_RETRIES = 5
+_RETRY_STATUSES = {429, 503}  # only retry rate-limit and temporary unavailable
+_MAX_RETRIES = 2
 
 
 def _tile_url(tpl, zoom, tx, ty, is_tms):
@@ -22,16 +22,20 @@ def _tile_url(tpl, zoom, tx, ty, is_tms):
 async def _fetch_tile(client, semaphore, url):
     delay = 1.0
     for attempt in range(_MAX_RETRIES):
-        async with semaphore:
-            r = await client.get(url)
-        if r.status_code not in _RETRY_STATUSES:
-            r.raise_for_status()
-            return Image.open(io.BytesIO(r.content)).convert('RGBA')
-        if attempt < _MAX_RETRIES - 1:
-            await asyncio.sleep(delay)
-            delay *= 2
-        else:
-            r.raise_for_status()
+        try:
+            async with semaphore:
+                r = await client.get(url)
+            if r.status_code not in _RETRY_STATUSES:
+                r.raise_for_status()
+                return Image.open(io.BytesIO(r.content)).convert('RGBA')
+            if attempt < _MAX_RETRIES - 1:
+                await asyncio.sleep(delay)
+                delay *= 2
+            else:
+                r.raise_for_status()
+        except (httpx.TimeoutException, httpx.NetworkError):
+            if attempt == _MAX_RETRIES - 1:
+                raise
 
 
 async def _fetch_layer(client, semaphore, title, url_tpl, is_tms,
@@ -84,8 +88,11 @@ async def _fetch_all_layers(layer_defs, zoom, tx_min, tx_max, ty_min, ty_max, on
     done = 0
 
     async with httpx.AsyncClient(
-        headers={'User-Agent': USER_AGENT},
-        timeout=30,
+        headers={
+            'User-Agent': USER_AGENT,
+            'Referer': 'https://nakarte.me/',
+        },
+        timeout=httpx.Timeout(connect=5.0, read=15.0, write=5.0, pool=5.0),
         follow_redirects=True,
     ) as client:
         base = None

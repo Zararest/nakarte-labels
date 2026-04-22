@@ -97,7 +97,7 @@ def main(config, out):
     tx_max = int((origin_x + width_px - 1) // TILE_SIZE)
     ty_max = int((origin_y + height_px - 1) // TILE_SIZE)
 
-    total_tiles = (tx_max - tx_min + 1) * (ty_max - ty_min + 1) * len(tile_urls)
+    total_tiles = (tx_max - tx_min + 1) * (ty_max - ty_min + 1) * len(layer_defs)
 
     def on_progress(done, _total):
         click.echo(f'\rFetching tiles... {done}/{_total}', nl=False)
