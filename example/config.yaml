@@ -22,6 +22,7 @@ export:
 style:
   track_color: '#e60000'
   track_width: 3
+  mark_size: 1.0
 marks:
 - lat: 50.32687
   lng: 87.46888

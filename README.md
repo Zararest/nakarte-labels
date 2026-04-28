@@ -137,6 +137,7 @@ Wrote map.png  (2000 × 1200 px)
 |-------|---------|-------------|
 | `track_color` | `#e60000` | Track line color (CSS hex) |
 | `track_width` | `3` | Track line width in pixels |
+| `mark_size` | `1.0` | Scale multiplier for all marks — labels, numbered points, and arrows scale together. `2.0` = twice the default size. |
 
 ### Mark fields
 

@@ -12,7 +12,7 @@ class Label(Mark):
 
     def render(self, image, pixel_x, pixel_y):
         draw = ImageDraw.Draw(image)
-        font = load_font(14)
+        font = load_font(round(14 * self.size_scale))
         draw.text(
             (pixel_x + self.offset[0], pixel_y + self.offset[1]),
             self.name,

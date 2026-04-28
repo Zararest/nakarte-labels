@@ -15,10 +15,10 @@ class NumberedPoint(Mark):
 
     def render(self, image, pixel_x, pixel_y):
         draw = ImageDraw.Draw(image)
-        r = _RADIUS
+        r = round(_RADIUS * self.size_scale)
         draw.ellipse([pixel_x - r, pixel_y - r, pixel_x + r, pixel_y + r], fill=_FILL)
 
-        font = load_font(12)
+        font = load_font(round(12 * self.size_scale))
         text = str(self.number)
         bb = draw.textbbox((0, 0), text, font=font)
         tw, th = bb[2] - bb[0], bb[3] - bb[1]

@@ -9,20 +9,20 @@ _MARK_CLASSES = {
 }
 
 
-def _build_mark(cfg):
+def _build_mark(cfg, size_scale=1.0):
     mark_type = cfg.get('type')
     if not mark_type:
         return None
     cls = _MARK_CLASSES.get(mark_type)
     if cls is None:
         raise ValueError(f"Unknown mark type: {mark_type!r}. Valid types: {list(_MARK_CLASSES)}")
-    return cls(**cfg)
+    return cls(size_scale=size_scale, **cfg)
 
 
-def render_marks(image, marks_config, origin_x, origin_y, project_fn):
+def render_marks(image, marks_config, origin_x, origin_y, project_fn, size_scale=1.0):
     rendered = 0
     for cfg in marks_config:
-        mark = _build_mark(cfg)
+        mark = _build_mark(cfg, size_scale=size_scale)
         if mark is None:
             continue
         px, py = project_fn(mark.lat, mark.lng)

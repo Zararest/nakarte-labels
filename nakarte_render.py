@@ -43,6 +43,7 @@ def main(config, out):
 
     track_color = style.get('track_color', '#e60000')
     track_width = style.get('track_width', 3)
+    mark_size   = style.get('mark_size', 1.0)
 
     try:
         url_params = parse_nakarte_url(url)
@@ -127,7 +128,7 @@ def main(config, out):
     active = [m for m in marks_cfg if m.get('type')]
     click.echo(f'Rendering {len(active)} mark(s)...')
     try:
-        render_marks(canvas, marks_cfg, origin_x, origin_y, project)
+        render_marks(canvas, marks_cfg, origin_x, origin_y, project, size_scale=mark_size)
     except ValueError as e:
         click.echo(f'Error: {e}', err=True)
         sys.exit(1)

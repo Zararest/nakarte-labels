@@ -17,23 +17,28 @@ class DirectionArrow(Mark):
 
     def render(self, image, pixel_x, pixel_y):
         draw = ImageDraw.Draw(image)
+        s = self.size_scale
+
+        length   = _LENGTH   * s
+        head_len = _HEAD_LEN * s
+        line_w   = max(1, round(2 * s))
 
         angle = math.radians(self.bearing)
-        dx = math.sin(angle) * _LENGTH
-        dy = -math.cos(angle) * _LENGTH  # screen y increases downward
+        dx = math.sin(angle) * length
+        dy = -math.cos(angle) * length  # screen y increases downward
 
         ex, ey = pixel_x + dx, pixel_y + dy
-        draw.line([(pixel_x, pixel_y), (ex, ey)], fill=self.color, width=2)
+        draw.line([(pixel_x, pixel_y), (ex, ey)], fill=self.color, width=line_w)
 
         # Arrowhead – two lines fanning back from the tip
         back = angle + math.pi
         left = (
-            ex + _HEAD_LEN * math.sin(back - _HEAD_ANGLE),
-            ey - _HEAD_LEN * math.cos(back - _HEAD_ANGLE),
+            ex + head_len * math.sin(back - _HEAD_ANGLE),
+            ey - head_len * math.cos(back - _HEAD_ANGLE),
         )
         right = (
-            ex + _HEAD_LEN * math.sin(back + _HEAD_ANGLE),
-            ey - _HEAD_LEN * math.cos(back + _HEAD_ANGLE),
+            ex + head_len * math.sin(back + _HEAD_ANGLE),
+            ey - head_len * math.cos(back + _HEAD_ANGLE),
         )
         draw.polygon([(ex, ey), left, right], fill=self.color)
         del draw
