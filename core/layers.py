@@ -29,6 +29,12 @@ REGISTRY = {
     'B':   ('Topo 500m',  'https://a.tiles.nakarte.me/topo500/{z}/{x}/{y}',   True),
     'T25': ('Topo 250m',  'https://a.tiles.nakarte.me/topo250/{z}/{x}/{y}',   True),
 
+    # GGC (Soviet military maps) — tiles.nakarte.me, TMS convention (y-axis flipped)
+    'N':   ('GGC 2km',   'https://a.tiles.nakarte.me/ggc2000/{z}/{x}/{y}',  True),
+    'J':   ('GGC 1km',   'https://a.tiles.nakarte.me/ggc1000/{z}/{x}/{y}',  True),
+    'F':   ('GGC 500m',  'https://a.tiles.nakarte.me/ggc500/{z}/{x}/{y}',   True),
+    'K':   ('GGC 250m',  'https://a.tiles.nakarte.me/ggc250/{z}/{x}/{y}',   True),
+
     # mapy.cz (served via nakarte CORS proxy, dash-separated coordinates)
     'Czt': ('mapy.cz tourist', 'https://proxy.nakarte.me/mapy/turist-en/{z}-{x}-{y}', False),
     'Czw': ('mapy.cz winter',  'https://proxy.nakarte.me/mapy/winter-en-down/{z}-{x}-{y}', False),
